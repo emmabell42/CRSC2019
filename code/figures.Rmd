@@ -1,0 +1,128 @@
+---
+title: "2019-05-23 Canadian Research Software Conference"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+base.dir <- file.path("/Users/emmabell/uhn/Projects/2019_CRSC")
+data.dir <- file.path(base.dir,"data")
+results.dir <- file.path(base.dir,"results")
+```
+
+```{r}
+library(gameofthrones)
+pal <- got(n = 10, option = "lannister")
+barplot(1:10, col = pal, border = NA)
+```
+
+#How much does sequencing cost?
+
+```{r}
+cost <- read.csv(file = file.path(data.dir,"raw_data/Sequencing_Costs_Table_July_2017.csv"), header = TRUE, stringsAsFactors = FALSE)
+cost <- cost[,1:4]
+cost$Date <- as.Date(cost$Date)
+head(cost)
+```
+
+```{r}
+one <- as.numeric(as.Date("2001-01-01"))
+seventeen <- as.numeric(as.Date("2018-01-01"))
+x.at <- seq(one, seventeen, 365)
+x.lab <- 2001:2018
+x.at
+x.lab
+```
+
+
+```{r}
+options(scipen = 10000000)
+y.lab <- seq(0,100,20)
+y.at <- y.lab * 10^6
+plot(x = cost$Date, y = cost$Cost.per.Genome/10^6, ylab = "Cost per genome (million US $)", xlab = "", col = pal[1], pch = 19, xaxt = "n", las = 1, main = "Cost of sequencing over time (per genome)")
+axis(side = 1, at = x.at, labels = x.lab, las = 2)
+mtext(text = "Year", side = 1, line = 3.5)
+```
+
+```{r}
+plot(x = cost$Date, y = cost$Cost.per.Genome/10^6, ylab = "Cost per genome (million US $)", xlim = c(x.at[7],x.at[18]), ylim = c(0,10), xlab = "", col = pal[1], pch = 19, xaxt = "n", las = 1)
+axis(side = 1, at = x.at, labels = x.lab, las = 2)
+mtext(text = "Year", side = 1, line = 3.5)
+```
+
+
+```{r}
+plot(x = cost$Date, y = cost$Cost.per.Mb/10^3, ylab = "Cost per Mb (thousand US $)", xlab = "", col = pal[1], pch = 19, las = 1, main = "Cost of sequencing over time (per Mb)", xaxt = "n")
+axis(side = 1, at = x.at, labels = x.lab, las = 2)
+mtext(text = "Year", side = 1, line = 3.5)
+```
+
+
+#How many samples are in GEO?
+
+```{r}
+geo <- read.csv(file = file.path(data.dir,"raw_data/20190523_GEOcontent.csv"), header = TRUE, stringsAsFactors = FALSE)
+geo[,1:5] <- apply(X = geo[,1:5], MARGIN = 2, FUN = function(X){
+  this.col <- X
+  this.col <- gsub(pattern = ",", replacement = "", x = X)
+  this.col <- as.numeric(this.col)
+  this.col <- rev(this.col)
+})
+head(geo)
+```
+
+```{r}
+years <- unique(geo$Year)
+years
+n.samples <- sapply(X = years,FUN = function(X){
+  this.year <- X
+  this.n <- geo$Samples[which(geo$Year==this.year)]
+  max(this.n)
+})
+n.series <- sapply(X = years,FUN = function(X){
+  this.year <- X
+  this.n <- geo$Series[which(geo$Year==this.year)]
+  max(this.n)
+})
+n.platforms <- sapply(X = years,FUN = function(X){
+  this.year <- X
+  this.n <- geo$Platforms[which(geo$Year==this.year)]
+  max(this.n)
+})
+rbind(years, n.series, n.platforms, n.samples)
+```
+
+```{r}
+y.labels <- seq(0,3,0.5)
+y.at <- y.labels * 10^6
+par(mar = c(5,5,2,2))
+barplot(height = n.samples, axes = FALSE, pch = 19, xlab = "", ylab = "", col = pal[2], main = "Number of samples in the NCBI SRA", names.arg = years, las = 2, border = NA)
+axis(side = 1, at = years, labels = years, las = 2) 
+axis(side = 2, at = y.at, labels = y.labels, las = 1)
+mtext(text = "Year", side = 1, line = 4)
+mtext(text = "# Samples (million)", side = 2, line = 3)
+```
+
+```{r}
+barplot(height = n.series/10^3, xlab = "", ylab = "# series (thousand)", col = pal[2], main = "Number of series in the NCBI SRA", names.arg = years, las = 2, border = NA)
+mtext(text = "Year", side = 1, line = 4)
+```
+
+```{r}
+barplot(height = n.platforms/10^3, xlab = "", ylab = "# platforms (thousand)", col = pal[2], main = "Number of platforms in the NCBI SRA", names.arg = years, las = 2, border = NA, ylim = c(0,20))
+mtext(text = "Year", side = 1, line = 4)
+```
+
+```{r}
+dummy.data <- array(data = NA, dim = c(1000,6))
+colnames(dummy.data) <- sort(paste(c("Case","Control"),rep(1:3, 2), sep = "_"))
+#dummy.data[,c(1,2,4)] <- 
+length(lapply(X = dummy.data[,c(1,2,4)], FUN = function(X) rnorm(n = 1000, mean = 50, sd = 10)))
+dummy.data[,c(3,5,6)] <- lapply(X = dummy.data[,c(3,5,6)], FUN = function(X) rnorm(n = 1000, mean = 150, sd = 20))
+dim(dummy.data)
+```
+
+
+
+
