@@ -8,7 +8,6 @@ output:
 ```{r}
 base.dir <- file.path("/Users/emmabell/uhn/Projects/2019_CRSC")
 data.dir <- file.path(base.dir,"data")
-results.dir <- file.path(base.dir,"results")
 ```
 
 ```{r}
@@ -20,7 +19,7 @@ barplot(1:10, col = pal, border = NA)
 #How much does sequencing cost?
 
 ```{r}
-cost <- read.csv(file = file.path(data.dir,"raw_data/Sequencing_Costs_Table_July_2017.csv"), header = TRUE, stringsAsFactors = FALSE)
+cost <- read.csv(file = file.path(data.dir,"clean_data/Sequencing_Costs_Table_July_2017.csv"), header = TRUE, stringsAsFactors = FALSE)
 cost <- cost[,1:4]
 cost$Date <- as.Date(cost$Date)
 head(cost)
@@ -59,10 +58,10 @@ mtext(text = "Year", side = 1, line = 3.5)
 ```
 
 
-#How many samples are in GEO?
+#How much data is in GEO?
 
 ```{r}
-geo <- read.csv(file = file.path(data.dir,"raw_data/20190523_GEOcontent.csv"), header = TRUE, stringsAsFactors = FALSE)
+geo <- read.csv(file = file.path(data.dir,"clean_data/20190523_GEOcontent.csv"), header = TRUE, stringsAsFactors = FALSE)
 geo[,1:5] <- apply(X = geo[,1:5], MARGIN = 2, FUN = function(X){
   this.col <- X
   this.col <- gsub(pattern = ",", replacement = "", x = X)
@@ -113,16 +112,3 @@ mtext(text = "Year", side = 1, line = 4)
 barplot(height = n.platforms/10^3, xlab = "", ylab = "# platforms (thousand)", col = pal[2], main = "Number of platforms in the NCBI SRA", names.arg = years, las = 2, border = NA, ylim = c(0,20))
 mtext(text = "Year", side = 1, line = 4)
 ```
-
-```{r}
-dummy.data <- array(data = NA, dim = c(1000,6))
-colnames(dummy.data) <- sort(paste(c("Case","Control"),rep(1:3, 2), sep = "_"))
-#dummy.data[,c(1,2,4)] <- 
-length(lapply(X = dummy.data[,c(1,2,4)], FUN = function(X) rnorm(n = 1000, mean = 50, sd = 10)))
-dummy.data[,c(3,5,6)] <- lapply(X = dummy.data[,c(3,5,6)], FUN = function(X) rnorm(n = 1000, mean = 150, sd = 20))
-dim(dummy.data)
-```
-
-
-
-
